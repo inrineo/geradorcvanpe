@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Criador de Currículo ANPE</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    body { font-family: 'DM Sans', sans-serif; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @media print { .no-print { display: none !important; } #preview { box-shadow: none !important; } }
+  </style>
+</head>
+<body class="min-h-screen w-full" style="background: linear-gradient(135deg, rgb(240, 244, 255), rgb(232, 240, 254));">
+  <header class="no-print py-6 text-center">
+    <img class="h-24 mx-auto mb-4 object-contain" loading="lazy" alt="Logo Agência Nacional Primeiro Emprego" src="logo.png">
+    <h1 class="text-3xl font-bold" style="color: rgb(30, 41, 59);">Criador de Currículo ANPE</h1>
+    <p class="mt-1" style="color: rgb(100, 116, 139);">Preencha as informações e gere o currículo pronto para imprimir</p>
+  </header>
+  
+  <main class="max-w-3xl mx-auto px-4 pb-12">
+    
+    <!-- FORM VIEW -->
+    <div id="form-view">
+      <!-- DADOS PESSOAIS -->
+      <fieldset class="bg-white rounded-xl p-6 mb-6 shadow-sm border border-gray-100">
+        <legend class="font-bold text-lg px-2" style="color: rgb(235, 114, 20);">Dados Pessoais</legend>
+        <div class="grid gap-4 mt-4 sm:grid-cols-2">
+          <div class="sm:col-span-2">
+            <label class="block text-sm font-medium mb-1" for="nome">Nome Completo</label>
+            <input id="nome" class="w-full border rounded-lg px-3 py-2" required>
+          </div>
+          <div><label class="block text-sm font-medium mb-1" for="idade">Idade</label><input id="idade" type="number" class="w-full border rounded-lg px-3 py-2"></div>
+          <div><label class="block text-sm font-medium mb-1" for="nascimento">Data de Nascimento</label><input id="nascimento" type="date" class="w-full border rounded-lg px-3 py-2"></div>
+          <div><label class="block text-sm font-medium mb-1" for="telefone">Telefone para Contato</label><input id="telefone" type="tel" class="w-full border rounded-lg px-3 py-2"></div>
+          <div><label class="block text-sm font-medium mb-1" for="recado">Telefone para Recado</label><input id="recado" type="tel" class="w-full border rounded-lg px-3 py-2"></div>
+          
+          <div class="sm:col-span-2"><label class="block text-sm font-medium mb-1" for="cep">CEP</label><input id="cep" type="text" maxlength="9" class="w-full border rounded-lg px-3 py-2" placeholder="00000-000"></div>
+          <div><label class="block text-sm font-medium mb-1" for="cidade">Cidade</label><input id="cidade" type="text" class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-gray-700" readonly placeholder="Preenchimento automático"></div>
+          <div><label class="block text-sm font-medium mb-1" for="bairro">Bairro</label><input id="bairro" type="text" class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-gray-700" readonly placeholder="Preenchimento automático"></div>
+        </div>
+      </fieldset>
+
+      <!-- ESCOLARIDADE DINÂMICA -->
+      <fieldset class="bg-white rounded-xl p-6 mb-6 shadow-sm border border-gray-100">
+        <legend class="font-bold text-lg px-2" style="color: rgb(30, 64, 175);">Escolaridade</legend>
+        <div id="edu-list" class="space-y-4 mt-4"></div>
+        <button type="button" onclick="addEducation()" class="mt-4 flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-800">
+          <i data-lucide="plus" style="width:16px;height:16px"></i> Adicionar formação
+        </button>
+      </fieldset>
+
+      <!-- QUALIFICAÇÕES -->
+      <fieldset class="bg-white rounded-xl p-6 mb-6 shadow-sm border border-gray-100">
+        <legend class="font-bold text-lg px-2" style="color: rgb(30, 64, 175);">Qualificações</legend>
+        <div class="grid gap-4 mt-4 sm:grid-cols-2">
+          <div>
+            <label class="block text-sm font-medium mb-1" for="office">Pacote Office (nível)</label>
+            <select id="office" class="w-full border rounded-lg px-3 py-2"><option value="">Selecione</option><option>Básico</option><option>Intermediário</option><option>Avançado</option></select>
+          </div>
+          <div><label class="block text-sm font-medium mb-1" for="software">Outros softwares</label><input id="software" class="w-full border rounded-lg px-3 py-2" placeholder="Ex: Photoshop, AutoCAD"></div>
+          <div class="sm:col-span-2"><label class="block text-sm font-medium mb-1" for="idiomas">Idiomas</label><input id="idiomas" class="w-full border rounded-lg px-3 py-2" placeholder="Ex: Inglês intermediário, Espanhol básico"></div>
+        </div>
+      </fieldset>
+
+      <!-- EXPERIÊNCIAS DINÂMICAS -->
+      <fieldset class="bg-white rounded-xl p-6 mb-6 shadow-sm border border-gray-100">
+        <legend class="font-bold text-lg px-2" style="color: rgb(30, 64, 175);">Experiências</legend>
+        <div id="exp-list" class="space-y-4 mt-4"></div>
+        <button type="button" onclick="addExperience()" class="mt-4 flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-800">
+          <i data-lucide="plus" style="width:16px;height:16px"></i> Adicionar experiência
+        </button>
+      </fieldset>
+      
+      <button type="button" onclick="generatePreview()" class="w-full py-3 rounded-xl font-bold text-lg shadow-md hover:shadow-lg transition-all" style="background: rgb(30, 64, 175); color: rgb(255, 255, 255);">Gerar Currículo</button>
+    </div>
+
+    <!-- PREVIEW VIEW -->
+    <div id="preview-view" class="hidden">
+      <div class="no-print flex gap-3 mb-4">
+        <button type="button" onclick="backToForm()" class="px-4 py-2 bg-gray-200 rounded-lg font-medium hover:bg-gray-300 transition-colors"><i data-lucide="arrow-left" style="width:16px;height:16px;display:inline"></i> Voltar</button>
+        <button type="button" id="pdf-btn" onclick="downloadPDF()" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"><i data-lucide="download" style="width:16px;height:16px;display:inline"></i> Baixar PDF</button>
+        <button type="button" onclick="window.print()" class="px-4 py-2 bg-gray-800 text-white rounded-lg font-medium hover:bg-gray-900 transition-colors"><i data-lucide="printer" style="width:16px;height:16px;display:inline"></i> Imprimir</button>
+      </div>
+      <div id="preview" class="bg-white rounded-xl p-8 shadow-md border border-gray-100 text-sm leading-relaxed"></div>
+    </div>
+  </main>
+
+  <script>
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx4FiesZSqNP29AwN5vFM4tYGUUH_STWRIv1QzgmN1wwHXL-LA36ym8GDS9fHvV1CTm/exec';
+    let jaSalvoNestaSessao = false;
+
+    // INTEGRAÇÃO VIACEP
+    document.getElementById('cep').addEventListener('blur', async function() {
+      let cep = this.value.replace(/\D/g, ''); 
+      if (cep.length === 8) {
+        try {
+          const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+          const data = await res.json();
+          if (!data.erro) {
+            document.getElementById('cidade').value = data.localidade;
+            document.getElementById('bairro').value = data.bairro;
+          } else {
+            alert('CEP não encontrado!');
+          }
+        } catch(e) {
+          console.error("Erro ao buscar CEP:", e);
+        }
+      }
+    });
+
+    // CONTROLES DE ESCOLARIDADE DINÂMICA
+    function addEducation() {
+      const container = document.getElementById('edu-list');
+      const isFirst = container.children.length === 0;
+      const div = document.createElement('div');
+      div.className = 'edu-item relative grid gap-3 sm:grid-cols-2 p-4 bg-gray-50 rounded-lg border border-gray-200';
+      
+      div.innerHTML = `
+        ${!isFirst ? `<button type="button" onclick="this.parentElement.remove()" class="absolute top-3 right-3 text-red-500 hover:text-red-700 text-xs font-medium flex items-center gap-1" title="Remover formação"><i data-lucide="trash-2" style="width:14px;height:14px"></i> Remover</button>` : ''}
+        <div class="sm:col-span-2 ${!isFirst ? 'pr-20' : ''}">
+          <label class="block text-sm font-medium mb-1">Nível de Escolaridade</label>
+          <select class="edu-nivel w-full border rounded-lg px-3 py-2 bg-white">
+            <option value="">Selecione</option>
+            <option>Ensino Fundamental</option>
+            <option>Ensino Médio</option>
+            <option>Ensino Técnico</option>
+            <option>Ensino Superior / Faculdade</option>
+            <option>Pós-Graduação / Especialização</option>
+          </select>
+        </div>
+        <div class="edu-curso-wrap sm:col-span-2 hidden">
+          <label class="block text-sm font-medium mb-1">Nome do Curso</label>
+          <input type="text" class="edu-curso w-full border rounded-lg px-3 py-2" placeholder="Ex: Administração, Mecatrônica, Pedagogia...">
+        </div>
+        <div class="sm:col-span-2">
+          <label class="block text-sm font-medium mb-1">Instituição de Ensino</label>
+          <input type="text" class="edu-instituicao w-full border rounded-lg px-3 py-2" placeholder="Nome da Escola, SENAI ou Faculdade">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Situação</label>
+          <select class="edu-situacao w-full border rounded-lg px-3 py-2 bg-white">
+            <option value="">Selecione</option>
+            <option>Cursando</option>
+            <option>Concluído</option>
+          </select>
+        </div>
+        <div class="edu-periodo-wrap">
+          <label class="block text-sm font-medium mb-1">Período</label>
+          <select class="edu-periodo w-full border rounded-lg px-3 py-2 bg-white">
+            <option value="">Selecione</option>
+            <option>Manhã</option>
+            <option>Tarde</option>
+            <option>Noite</option>
+            <option>EAD</option>
+          </select>
+        </div>
+        <div class="edu-serie-wrap">
+          <label class="block text-sm font-medium mb-1">Ano / Semestre / Série</label>
+          <input type="text" class="edu-serie w-full border rounded-lg px-3 py-2" placeholder="Ex: 3º Ano EM, 2º Semestre">
+        </div>
+        <div class="edu-conclusao-wrap hidden">
+          <label class="block text-sm font-medium mb-1">Ano de Conclusão</label>
+          <input type="number" class="edu-conclusao w-full border rounded-lg px-3 py-2" min="1900" max="2099" placeholder="Ex: 2025">
+        </div>
+      `;
+
+      const nivelSelect = div.querySelector('.edu-nivel');
+      const cursoWrap = div.querySelector('.edu-curso-wrap');
+      const cursoInput = div.querySelector('.edu-curso');
+
+      nivelSelect.addEventListener('change', function() {
+        if (['Ensino Técnico', 'Ensino Superior / Faculdade', 'Pós-Graduação / Especialização'].includes(this.value)) {
+          cursoWrap.classList.remove('hidden');
+        } else {
+          cursoWrap.classList.add('hidden');
+          cursoInput.value = '';
+        }
+      });
+
+      const situacaoSelect = div.querySelector('.edu-situacao');
+      const periodoWrap = div.querySelector('.edu-periodo-wrap');
+      const serieWrap = div.querySelector('.edu-serie-wrap');
+      const conclusaoWrap = div.querySelector('.edu-conclusao-wrap');
+
+      situacaoSelect.addEventListener('change', function() {
+        if (this.value === 'Concluído') {
+          periodoWrap.classList.add('hidden');
+          serieWrap.classList.add('hidden');
+          conclusaoWrap.classList.remove('hidden');
+          div.querySelector('.edu-periodo').value = '';
+          div.querySelector('.edu-serie').value = '';
+        } else {
+          periodoWrap.classList.remove('hidden');
+          serieWrap.classList.remove('hidden');
+          conclusaoWrap.classList.add('hidden');
+          div.querySelector('.edu-conclusao').value = '';
+        }
+      });
+
+      container.appendChild(div);
+      lucide.createIcons();
+    }
+    addEducation();
+
+    // CONTROLES DE EXPERIÊNCIA DINÂMICA
+    function addExperience() {
+      const container = document.getElementById('exp-list');
+      const isFirst = container.children.length === 0;
+      const div = document.createElement('div');
+      div.className = 'exp-item relative grid gap-3 sm:grid-cols-2 p-4 bg-gray-50 rounded-lg border border-gray-200';
+      div.innerHTML = `
+        ${!isFirst ? `<button type="button" onclick="this.parentElement.remove()" class="absolute top-3 right-3 text-red-500 hover:text-red-700 text-xs font-medium flex items-center gap-1" title="Remover experiência"><i data-lucide="trash-2" style="width:14px;height:14px"></i> Remover</button>` : ''}
+        <div class="sm:col-span-2 ${!isFirst ? 'pr-20' : ''}"><label class="block text-sm font-medium mb-1">Empresa</label><input class="exp-empresa w-full border rounded-lg px-3 py-2"></div>
+        <div><label class="block text-sm font-medium mb-1">Cargo</label><input class="exp-cargo w-full border rounded-lg px-3 py-2"></div>
+        <div><label class="block text-sm font-medium mb-1">Período</label><input class="exp-periodo w-full border rounded-lg px-3 py-2" placeholder="Ex: Jan/2023 - Dez/2024"></div>
+        <div class="sm:col-span-2"><label class="block text-sm font-medium mb-1">Atividades</label><textarea class="exp-atividades w-full border rounded-lg px-3 py-2" rows="2"></textarea></div>
+      `;
+      container.appendChild(div);
+      lucide.createIcons();
+    }
+    addExperience();
+
+    function val(id) { return document.getElementById(id).value.trim(); }
+
+    function getEducations() {
+      return [...document.querySelectorAll('#edu-list > .edu-item')].map(d => ({
+        nivel: d.querySelector('.edu-nivel').value.trim(),
+        curso: d.querySelector('.edu-curso').value.trim(),
+        instituicao: d.querySelector('.edu-instituicao').value.trim(),
+        situacao: d.querySelector('.edu-situacao').value.trim(),
+        periodo: d.querySelector('.edu-periodo').value.trim(),
+        serie: d.querySelector('.edu-serie').value.trim(),
+        ano_conclusao: d.querySelector('.edu-conclusao').value.trim()
+      })).filter(e => e.nivel || e.instituicao || e.curso);
+    }
+
+    function getExperiences() {
+      return [...document.querySelectorAll('#exp-list > .exp-item')].map(d => ({
+        empresa: d.querySelector('.exp-empresa').value.trim(),
+        cargo: d.querySelector('.exp-cargo').value.trim(),
+        periodo: d.querySelector('.exp-periodo').value.trim(),
+        atividades: d.querySelector('.exp-atividades').value.trim()
+      })).filter(e => e.empresa || e.cargo);
+    }
+
+    // FUNÇÃO DE ENVIO PARA O GOOGLE SHEETS VIA GET (IMUNE A BLOQUEIOS DE REDIRECIONAMENTO)
+    async function enviarParaPlanilha() {
+      const edus = getEducations();
+      const exps = getExperiences();
+
+      const resumeData = {
+        nome: val('nome'),
+        idade: val('idade'),
+        nascimento: val('nascimento'),
+        telefone: val('telefone'),
+        recado: val('recado'),
+        cep: val('cep'),
+        cidade: val('cidade'),
+        bairro: val('bairro'),
+        escolaridades: JSON.stringify(edus),
+        office: val('office'),
+        software: val('software'),
+        idiomas: val('idiomas'),
+        experiencias: JSON.stringify(exps)
+      };
+
+      const urlComDados = `${GOOGLE_SCRIPT_URL}?payload=${encodeURIComponent(JSON.stringify(resumeData))}`;
+
+      try {
+        await fetch(urlComDados, { method: 'GET', mode: 'no-cors' });
+        jaSalvoNestaSessao = true;
+        mostrarToast('Dados salvos na planilha com sucesso!', 'bg-green-600');
+      } catch (err) {
+        console.error('Erro ao enviar para planilha:', err);
+        mostrarToast('Não foi possível conectar à planilha.', 'bg-red-600');
+      }
+    }
+
+    function mostrarToast(texto, corClasse) {
+      const msg = document.createElement('div');
+      msg.className = `fixed bottom-4 right-4 ${corClasse} text-white px-4 py-3 rounded-lg shadow-lg z-50 text-sm font-medium`;
+      msg.textContent = texto;
+      document.body.appendChild(msg);
+      setTimeout(() => msg.remove(), 4000);
+    }
+
+    // GERAR PREVIEW E SALVAR AUTOMATICAMENTE
+    function generatePreview() {
+      if (!val('nome')) {
+        alert('Por favor, preencha o seu Nome Completo.');
+        document.getElementById('nome').focus();
+        return;
+      }
+
+      const edus = getEducations();
+      const exps = getExperiences();
+      const nascimento = val('nascimento') ? new Date(val('nascimento') + 'T12:00:00').toLocaleDateString('pt-BR') : '';
+
+      let html = `<div class="text-center mb-6">
+                    <img src="logo.png" alt="Logo ANPE" style="height: 80px; margin: 0 auto; object-fit: contain;">
+                  </div>`;
+      html += `<h2 class="text-2xl font-bold mb-1">${val('nome')}</h2>`;
+      
+      let infosContato = [
+        val('idade') ? val('idade') + ' anos' : '', 
+        nascimento ? 'Nasc: ' + nascimento : '', 
+        val('telefone') ? 'Tel: ' + val('telefone') : '', 
+        val('recado') ? 'Recado: ' + val('recado') : '',
+        val('bairro') ? val('bairro') + ', ' + val('cidade') : ''
+      ].filter(Boolean).join(' | ');
+
+      html += `<p class="text-gray-600 mb-4">${infosContato}</p>`;
+
+      if (edus.length) {
+        html += `<h3 class="font-bold text-base mt-5 mb-2 border-b pb-1">ESCOLARIDADE</h3>`;
+        edus.forEach(e => {
+          html += `<div class="mb-3">`;
+          html += `<p class="font-semibold">${e.nivel}${e.curso ? ' — ' + e.curso : ''}</p>`;
+          if (e.instituicao) html += `<p class="text-gray-700">${e.instituicao}</p>`;
+          
+          let detalhes = [];
+          if (e.situacao) detalhes.push(e.situacao);
+          if (e.situacao === 'Cursando') {
+            if (e.serie) detalhes.push(e.serie);
+            if (e.periodo) detalhes.push('Período: ' + e.periodo);
+          } else if (e.situacao === 'Concluído' && e.ano_conclusao) {
+            detalhes.push('Conclusão: ' + e.ano_conclusao);
+          }
+          
+          if (detalhes.length) {
+            html += `<p class="text-gray-500 text-xs">${detalhes.join(' | ')}</p>`;
+          }
+          html += `</div>`;
+        });
+      }
+
+      html += `<h3 class="font-bold text-base mt-5 mb-2 border-b pb-1">QUALIFICAÇÕES</h3><ul class="list-disc pl-5 space-y-1">`;
+      if (val('office')) html += `<li>Pacote Office: ${val('office')}</li>`;
+      if (val('software')) html += `<li>Softwares: ${val('software')}</li>`;
+      if (val('idiomas')) html += `<li>Idiomas: ${val('idiomas')}</li>`;
+      html += `</ul>`;
+
+      if (exps.length) {
+        html += `<h3 class="font-bold text-base mt-5 mb-2 border-b pb-1">EXPERIÊNCIAS</h3>`;
+        exps.forEach(e => {
+          html += `<div class="mb-3"><p class="font-semibold">${e.empresa}${e.cargo ? ' — ' + e.cargo : ''}</p>`;
+          if (e.periodo) html += `<p class="text-gray-500 text-xs">${e.periodo}</p>`;
+          if (e.atividades) html += `<p class="mt-1">${e.atividades}</p>`;
+          html += `</div>`;
+        });
+      }
+
+      document.getElementById('preview').innerHTML = html;
+      document.getElementById('form-view').classList.add('hidden');
+      document.getElementById('preview-view').classList.remove('hidden');
+
+      // Envia para a planilha assim que o currículo é gerado
+      if (!jaSalvoNestaSessao) {
+        enviarParaPlanilha();
+      }
+    }
+
+    function backToForm() {
+      jaSalvoNestaSessao = false; // Permite reenviar caso o usuário edite os dados
+      document.getElementById('preview-view').classList.add('hidden');
+      document.getElementById('form-view').classList.remove('hidden');
+    }
+
+    // BAIXAR PDF
+    async function downloadPDF() {
+      const pdfBtn = document.getElementById('pdf-btn');
+      pdfBtn.disabled = true;
+      pdfBtn.innerHTML = '<i data-lucide="loader" style="width:16px;height:16px;display:inline;animation:spin 1s linear infinite"></i> Gerando PDF...';
+      lucide.createIcons();
+
+      try {
+        const element = document.getElementById('preview');
+        const fileName = `curriculo_${(val('nome') || 'candidato').replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+        const opt = {
+          margin: 10,
+          filename: fileName,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, allowTaint: true },
+          jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+        };
+        
+        await html2pdf().set(opt).from(element).save();
+      } catch (error) {
+        console.error('Erro ao gerar PDF:', error);
+        mostrarToast('Erro ao gerar PDF. Use o botão Imprimir > Salvar como PDF.', 'bg-red-600');
+      } finally {
+        pdfBtn.disabled = false;
+        pdfBtn.innerHTML = '<i data-lucide="download" style="width:16px;height:16px;display:inline"></i> Baixar PDF';
+        lucide.createIcons();
+      }
+    }
+  </script>
+</body>
+</html>
